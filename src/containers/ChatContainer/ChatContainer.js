@@ -142,11 +142,12 @@ class ChatContainer extends Component {
     render() {
         const { inputMessage } = this;
         const { site } = this.state;
+        const week = ['월', '화', '수', '목', '금', '토', '일'];
         const now = new Date();
 
         return (
             <div className="Wrapper">
-                <header className={cx("top-header")}>
+                <header className={cx("chat-header")}>
                     <div className={cx("header-bottom")}>
                         <div className={cx("header-column")}>
                             <Link to="/chatList">
@@ -165,7 +166,7 @@ class ChatContainer extends Component {
                 <div className={cx('detail-chat')} id="detail-chat">
                     <div className={cx('date-divider')}>
                         <span>
-                            Wednesday, August 2, 2017
+                            {now.getFullYear()}년 {service.leadingZeros(now.getMonth() + 1, 2)}월 {service.leadingZeros(now.getDate(), 2)}일 {week[now.getDay() - 1]}요일
                         </span>
                     </div>
 

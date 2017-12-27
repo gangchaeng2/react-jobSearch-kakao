@@ -6,7 +6,7 @@ class SearchContainer extends Component {
     render() {
         return (
             <div>
-                <Header>친구검색</Header>
+                <Header />
                 <Search />
             </div>
         );
