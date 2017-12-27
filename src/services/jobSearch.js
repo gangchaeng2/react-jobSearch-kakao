@@ -83,8 +83,8 @@ export function getJobList(query, site) {
 export function ConvertSystemSourcetoHtml(str) {
     console.log(str);
     if(str !== undefined) {
-        str = str.replace("&lt;","<");
-        str = str.replace("&gt;",">");
+        str = str.replace(/&lt;/g,"<");
+        str = str.replace(/&gt;/g,">");
     } else {
         str = "";
     }
