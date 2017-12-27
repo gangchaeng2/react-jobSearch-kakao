@@ -10,8 +10,8 @@ class App extends Component {
       return (
         <div>
             <Route exact path="/chatList" component={ChatListPage} />
-            <Route exact path="/chat" component={ChatPage} />
-            <Route path="/findSummoner" component={SearchPage} />
+            <Route exact path="/chat/:site" component={ChatPage} />
+            <Route exact path="/" component={SearchPage} />
         </div>
       );
   }
