@@ -13,10 +13,10 @@ const Header = ({children}) => {
     return (
         <div>
             <div className={cx('header')}>
-                <span className={cx('title')}>{children} <i className="fa fa-caret-down"></i></span>
+                <span className={cx('title')}>WorkTalk</span>
             </div>
             <div className={cx('subheader')}>
-                <NavLink to="/findSummoner" activeStyle={activeStyle}>
+                <NavLink to="/" activeStyle={activeStyle}>
                     <div className={cx('icon')}>
                         <i className="fa fa-user"></i>
                         <span className={cx('text')}>Friends</span>
