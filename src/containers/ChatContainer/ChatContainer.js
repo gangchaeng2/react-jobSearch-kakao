@@ -1,41 +1,46 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-
-import fastXmlParser from 'fast-xml-parser';
 import classNames from 'classnames/bind';
-import profileImg from '../../img/bigshine.png';
 
+import * as service from '../../services/jobSearch';
 import styles from '../../components/Chat/Chat.scss';
 
 const cx = classNames.bind(styles);
 
-
 class ChatContainer extends Component {
+    constructor(props) {
+        super(props);
 
-    answerMessage = (jobList) => {
-        jobList.forEach((job, i) => {
-            this.messageToMe(job);
-        });
+        this.state = {
+            site: this.props.site,
+            profileImg: this.props.profileImg
+        }
+    }
+
+    componentDidMount() {
+        document.body.className = 'chatting';
     }
     
-    inputMessage = (e) => {
-        const self = this;
+
+    answerMessage = (jobList) => {
+        if(jobList !== null) {
+            jobList.forEach((job, i) => {
+                this.messageToMe(job);
+            });
+        } else {
+            this.messageToMe(null);
+        }
+    }
+    
+    inputMessage = async (e) => {
         // 엔터 클릭시
         if(e.charCode === 13) {
-            // 현재시간
+            const { site } = this.state;
             const query = e.target.value;
-
             this.messageFromMe(query);
 
-            axios.get(`https://cors-anywhere.herokuapp.com/http://api.saramin.co.kr/job-search?keywords=${query}`)
-            .then(function(res){
-                const jobJson = fastXmlParser.parse(res.data);
-                self.answerMessage(jobJson['job-search'].jobs.job);
-            })
-            .catch(function(error){
-                self.messageToMe();
-            });
+            const jobList = await service.getJobList(query, site);
+            this.answerMessage(jobList);
         }
     }
 
@@ -48,7 +53,7 @@ class ChatContainer extends Component {
 
         // span className 적용 및 텍스트 추가
         let makeTime = document.createElement('span');
-        const makeTimeText = document.createTextNode(`${now.getHours()}:${now.getMinutes()}`);
+        const makeTimeText = document.createTextNode(`${service.leadingZeros(now.getHours(), 2)} : ${service.leadingZeros(now.getMinutes(), 2)}`);
         makeTime.className = "time";
         makeTime.appendChild(makeTimeText);
 
@@ -65,61 +70,91 @@ class ChatContainer extends Component {
 
     messageToMe = (job) => {
         const now = new Date();
+        // br Tag
+        const br = document.createElement("br");
 
         const mainDiv = document.getElementById('detail-chat');
-        const makeDiv = document.createElement('div');
-        makeDiv.className = "to-me";
+        const toMeDiv = document.createElement('div');
+        toMeDiv.className = "to-me";
         
-        let makeImg = document.createElement("img");
-        makeImg.className = "avartar";
-        makeImg.src = profileImg;
+        let profileImg = document.createElement("img");
+        profileImg.className = "avartar";
+        profileImg.src = this.state.profileImg;
 
         // message Div
-        let makeMessageDiv = document.createElement("div");
-        makeMessageDiv.className = "message-center";
+        let messageWrapperDiv = document.createElement("div");
+        messageWrapperDiv.className = "message-center";
 
         // answerName h3
-        let makeAnswerH3 = document.createElement("h3");
-        const makeAnswerText = document.createTextNode("사람인");
-        makeAnswerH3.className = "user-name";
-        makeAnswerH3.appendChild(makeAnswerText);
-
-        // answer span
-        let makeAnswerSpan = document.createElement("span");
-        let makeAnswerMessage = "";
-        if(job !== null && job !== undefined) {
-            makeAnswerMessage = document.createTextNode(`${job.company.name} - ${job.position.title}`);
-        } else {
-            makeAnswerMessage = document.createTextNode('검색결과가 없거나 검색어를 정확히 입력하지 않으셨습니다. 다시 입력해주세요.');
-        }
-        makeAnswerSpan.className = "message-body";
-        makeAnswerSpan.appendChild(makeAnswerMessage);
+        let userNameH3 = document.createElement("h3");
+        const userNameText = document.createTextNode(this.state.site);
+        userNameH3.className = "user-name";
+        userNameH3.appendChild(userNameText);
 
         // time span
         let makeTimeSpan = document.createElement('span');
-        const makeTimeText = document.createTextNode(`${now.getHours()}:${now.getMinutes()}`);
+        const makeTimeText = document.createTextNode(`${service.leadingZeros(now.getHours(), 2)} : ${service.leadingZeros(now.getMinutes(), 2)}`);
         makeTimeSpan.className = "time";
         makeTimeSpan.appendChild(makeTimeText);
 
-        makeMessageDiv.appendChild(makeAnswerH3).after(makeAnswerSpan);
+        // answer span
+        let messageBodySpan = document.createElement("span");
+        messageBodySpan.className = "message-body";
+        messageBodySpan.title = `${job.detail.title} 사람인으로 이동`;
 
-        mainDiv.appendChild(makeDiv).appendChild(makeImg).after(makeMessageDiv);
+        let messageBodyColorSpan = document.createElement("span");
+        messageBodyColorSpan.className = "highlite-span";
+        
+        let jobInfo = "";
+        let jobInfo2 = "";
+        let jobInfoHL = "";
+
+        if(job !== null && job !== undefined) {
+            jobInfo = document.createTextNode(`${job.company} - ${job.detail.title} `);
+            jobInfoHL = document.createTextNode(` [${job.detail['experience-level']}]`);
+            messageBodyColorSpan.appendChild(jobInfoHL);
+            jobInfo2 = document.createTextNode(`위치 - ${service.ConvertSystemSourcetoHtml(job.detail.location)}`);
+        } else {
+            jobInfo = document.createTextNode('검색결과가 없거나 검색어를 정확히 입력하지 않으셨습니다. 다시 입력해주세요.');
+            messageBodySpan.appendChild(jobInfo);
+            messageWrapperDiv.appendChild(userNameH3).after(messageBodySpan); 
+            mainDiv.appendChild(toMeDiv).appendChild(profileImg).after(messageWrapperDiv);
+            toMeDiv.appendChild(makeTimeSpan);
+            return;
+        }
+
+        // span appendChild
+        messageBodySpan.appendChild(jobInfo);
+        messageBodySpan.appendChild(messageBodyColorSpan);
+        messageBodySpan.appendChild(br);
+        messageBodySpan.appendChild(jobInfo2);
+        messageBodySpan.addEventListener('click', function() {
+            const newWindow = window.open("about:blank");
+            newWindow.location.href = job.url;
+        });
+
+        messageWrapperDiv.appendChild(userNameH3).after(messageBodySpan);
+        
+        mainDiv.appendChild(toMeDiv).appendChild(profileImg).after(messageWrapperDiv);
+        toMeDiv.appendChild(makeTimeSpan);
     }
 
     render() {
-        const { inputMessage } = this; 
+        const { inputMessage } = this;
+        const { site } = this.state;
+        const now = new Date();
 
         return (
-            <div>
+            <div className="Wrapper">
                 <header className={cx("top-header")}>
                     <div className={cx("header-bottom")}>
                         <div className={cx("header-column")}>
-                            <Link to="chatList">
+                            <Link to="/chatList">
                                 <i className="fa fa-chevron-left fa-lg"></i>
                             </Link>
                         </div>
                         <div className={cx("header-column")}>
-                            <span className="friend-name">사람인</span>
+                            <span className="friend-name">{site}</span>
                         </div>
                         <div className={cx("header-column")}>
                             <i className="fa fa-search"></i>
@@ -135,34 +170,36 @@ class ChatContainer extends Component {
                     </div>
 
                     <div className={cx('from-me')}>
-                        <span className={cx("time")}>17:55</span>
+                        <span className={cx("time")}>
+                            {service.leadingZeros(now.getHours(), 2)} : {service.leadingZeros(now.getMinutes(), 2)}
+                        </span>
                         <span className="message-body">
-                            사람인~
+                            {site}~
                         </span>
                     </div>
 
                     <div className="to-me">
-                        <img src={profileImg} alt="" className={cx("avartar")} />
+                        <img src={this.state.profileImg} alt="" className={cx("avartar")} />
                         <div className={cx("message-center")}>
                             <h3 className={cx("user-name")}>
-                                사람인
+                                {site}
                             </h3>
                             <span className={cx("message-body")}>
-                                안녕하세요 사람인 입니다. 검색하고 싶은 기업이나 직종을 입력해주세요.
+                                안녕하세요 {site} 입니다. 검색하고 싶은 기업이나 직종을 입력해주세요.
                             </span>
                         </div>
                         <span className={cx("time")}>
-                            19:35
+                            {service.leadingZeros(now.getHours(), 2)} : {service.leadingZeros(now.getMinutes(), 2)}
                         </span>
                     </div>
                 </div>
 
-                <div className="type-message">
+                <div className={cx("type-message")}>
                     <i className="fa fa-plus fa-lg"></i>
-                    <div className="type-message__input">
+                    <div className={cx("input-box")}>
                         <input type="text" className="input-message" id="input-message" onKeyPress={inputMessage}/>
                         <i className="fa fa-smile-o fa-lg"></i>
-                        <span className="record-message">
+                        <span className={cx("record-message")}>
                             <i className="fa fa-microphone fa-lg"></i>
                         </span>
                     </div>
