@@ -1,7 +1,7 @@
 import React from 'react';
 
 import saramin from '../img/saramin.png';
-import incuruit from '../img/incuruit.png';
+import incruit from '../img/incruit.png';
 import { ChatContainer } from '../containers';
 
 const ChatPage = ({ match, post}) => {
@@ -10,7 +10,7 @@ const ChatPage = ({ match, post}) => {
     if(match.params.site === '사람인') {
         profileImg = saramin;
     } else {
-        profileImg = incuruit;
+        profileImg = incruit;
     }
 
     return (

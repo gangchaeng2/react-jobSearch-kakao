@@ -3,7 +3,7 @@ import classNames from 'classnames/bind';
 
 import myProfile from '../../img/bigshine.png';
 import saramin from '../../img/saramin.png';
-import incuruit from '../../img/incuruit.png';
+import incruit from '../../img/incruit.png';
 import styles from './Search.scss';
 
 const cx = classNames.bind(styles);
@@ -45,8 +45,8 @@ const Search = () => {
                         </div>
                         <div className={cx('with-tagline')}>
                             <div className={cx('section-column')}>
-                                <img src={incuruit} alt=""/>
-                                <span>인curuit</span>
+                                <img src={incruit} alt=""/>
+                                <span>인cruit</span>
                             </div>
                             <span className={cx('section-tagline')}>
                                 안녕하세요 인curuit 입니다~

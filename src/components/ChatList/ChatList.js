@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import saramin from '../../img/saramin.png';
-import incuruit from '../../img/incuruit.png';
+import incruit from '../../img/incruit.png';
 import styles from './ChatList.scss';
 import classNames from 'classnames/bind';
 
@@ -30,7 +30,7 @@ const ChatList = ({ openChat }) => {
             </Link>
             <Link to="/chat/인curuit">
                 <div className={cx('chat')}>
-                    <img src={incuruit} alt="" className={cx('avartar')}/>
+                    <img src={incruit} alt="" className={cx('avartar')}/>
                     <div className={cx('text')}>
                         <span className={cx('user-name')}>
                             인쿠르트
