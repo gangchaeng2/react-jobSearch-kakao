@@ -18,7 +18,6 @@ export function getJobList(query, site) {
             jobList = getJobListBySaramin(query)
                       .then(function(res){
                           const jobJson = fastXmlParser.parse(res.data);
-                          console.log(jobJson);
                           if(jobJson['job-search'].jobs.job.length > 0) {
                               const jobList = jobJson['job-search'].jobs.job;
                               let rtJobList = [];
@@ -45,7 +44,6 @@ export function getJobList(query, site) {
             jobList = getJobListByIncuruit(query)
                       .then(function(res) {
                           const jobJson = fastXmlParser.parse(res.data);
-                          console.log(jobJson);
                           const jobList = jobJson.rss.channel.item;
 
                           if(jobList.length > 0) {
