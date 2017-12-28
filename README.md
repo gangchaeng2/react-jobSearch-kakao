@@ -1,4 +1,4 @@
-# Movie-board
+# WorkTalk
 
 > This service is now available at https://bigshine-jobsearch-kakao.herokuapp.com
 
