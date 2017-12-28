@@ -20,7 +20,6 @@ class ChatContainer extends Component {
     componentDidMount() {
         document.body.className = 'chatting';
     }
-    
 
     answerMessage = (jobList) => {
         if(jobList !== null) {
@@ -100,16 +99,16 @@ class ChatContainer extends Component {
         // answer span
         let messageBodySpan = document.createElement("span");
         messageBodySpan.className = "message-body";
-        messageBodySpan.title = `${job.detail.title} 사람인으로 이동`;
-
         let messageBodyColorSpan = document.createElement("span");
         messageBodyColorSpan.className = "highlite-span";
-        
+
         let jobInfo = "";
         let jobInfo2 = "";
         let jobInfoHL = "";
 
         if(job !== null && job !== undefined) {
+            messageBodySpan.title = `${job.detail.title} 사람인으로 이동`;
+
             jobInfo = document.createTextNode(`${job.company} - ${job.detail.title} `);
             jobInfoHL = document.createTextNode(` [${job.detail['experience-level']}]`);
             messageBodyColorSpan.appendChild(jobInfoHL);
