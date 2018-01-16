@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
 
+// import $ from 'jquery';
+
 import * as service from '../../services/jobSearch';
 import styles from '../../components/Chat/Chat.scss';
 
@@ -13,7 +15,9 @@ class ChatContainer extends Component {
 
         this.state = {
             site: this.props.site,
-            profileImg: this.props.profileImg
+            profileImg: this.props.profileImg,
+            page: 1,
+            query: ''
         }
     }
 
@@ -26,21 +30,32 @@ class ChatContainer extends Component {
             jobList.forEach((job, i) => {
                 this.messageToMe(job);
             });
+            if( this.state.page === 1) {
+                this.moreView();
+             }
+            // $(".to-me:last-child").after(`<div class="to-me"><img class="avartar" src="/static/media/saramin.765c2345.png"><div class="message-center"><h3 class="user-name">사람인</h3><span class="message-body"><span class="more-view">더보기</span></div></div>`);
         } else {
             this.messageToMe(null);
         }
     }
-    
+
     inputMessage = async (e) => {
         // 엔터 클릭시
-        if(e.charCode === 13) {
-            const { site } = this.state;
+        if(e.keyCode === 13) {
             const query = e.target.value;
+            const { site } = this.state;
+            document.getElementById('input-message').value = '';
+            
+            this.setState({
+                query
+            });
+
             this.messageFromMe(query);
 
-            const jobList = await service.getJobList(query, site);
+            const jobList = await service.getJobList(query, site, this.state.page);
             this.answerMessage(jobList);
-        }
+         }
+
     }
 
     messageFromMe = (query) => {
@@ -62,9 +77,59 @@ class ChatContainer extends Component {
         makeMessage.className = "message-body";
         makeMessage.appendChild(makeMessageText);  
         
-        // input 클리어
-        document.getElementById('input-message').value = '';
+        // input clear
         mainDiv.appendChild(makeDiv).appendChild(makeTime).after(makeMessage);
+    }
+
+    moreJobList = async() => {
+        this.setState({
+            page: this.state.page + 1
+        });
+        const jobList = await service.getJobList(this.state.query, this.state.site, this.state.page);
+        this.answerMessage(jobList);
+    }
+
+    moreView = () => {
+        const now = new Date();
+
+        const mainDiv = document.getElementById('detail-chat');
+        const toMeDiv = document.createElement('div');
+        toMeDiv.className = "to-me";
+        toMeDiv.addEventListener('click', this.moreJobList);
+
+        let profileImg = document.createElement("img");
+        profileImg.className = "avartar";
+        profileImg.src = this.state.profileImg;
+
+        // message Div
+        let messageWrapperDiv = document.createElement("div");
+        messageWrapperDiv.className = "message-center";
+
+        // answerName h3
+        let userNameH3 = document.createElement("h3");
+        const userNameText = document.createTextNode(this.state.site);
+        userNameH3.className = "user-name";
+        userNameH3.appendChild(userNameText);
+
+        // time span
+        let makeTimeSpan = document.createElement('span');
+        const makeTimeText = document.createTextNode(`${service.leadingZeros(now.getHours(), 2)} : ${service.leadingZeros(now.getMinutes(), 2)}`);
+        makeTimeSpan.className = "time";
+        makeTimeSpan.appendChild(makeTimeText);
+
+        // answer span
+        let messageBodySpan = document.createElement("span");
+        messageBodySpan.className = "message-body";
+        let messageBodyColorSpan = document.createElement("span");
+        messageBodyColorSpan.className = "highlite-span";
+
+        let jobInfo = "";
+
+        jobInfo = document.createTextNode('더보기');
+        messageBodySpan.appendChild(jobInfo);
+        messageWrapperDiv.appendChild(userNameH3).after(messageBodySpan); 
+        mainDiv.appendChild(toMeDiv).appendChild(profileImg).after(messageWrapperDiv);
+        toMeDiv.appendChild(makeTimeSpan);
     }
 
     messageToMe = (job) => {
@@ -103,7 +168,6 @@ class ChatContainer extends Component {
         messageBodyColorSpan.className = "highlite-span";
 
         let jobInfo = "";
-        let jobInfo2 = "";
         let jobInfoHL = "";
 
         if(job !== null && job !== undefined) {
@@ -111,8 +175,12 @@ class ChatContainer extends Component {
 
             jobInfo = document.createTextNode(`${job.company} - ${job.detail.title} `);
             jobInfoHL = document.createTextNode(` [${job.detail['experience-level']}]`);
+            
+            messageBodySpan.appendChild(jobInfo);
+            messageBodySpan.appendChild(messageBodyColorSpan);
+            
             messageBodyColorSpan.appendChild(jobInfoHL);
-            jobInfo2 = document.createTextNode(`위치 - ${service.ConvertSystemSourcetoHtml(job.detail.location)}`);
+            jobInfo = document.createTextNode(`위치 - ${service.ConvertSystemSourcetoHtml(job.detail.location)}`);
         } else {
             jobInfo = document.createTextNode('검색결과가 없거나 검색어를 정확히 입력하지 않으셨습니다. 다시 입력해주세요.');
             messageBodySpan.appendChild(jobInfo);
@@ -123,11 +191,9 @@ class ChatContainer extends Component {
         }
 
         // span appendChild
-        messageBodySpan.appendChild(jobInfo);
-        messageBodySpan.appendChild(messageBodyColorSpan);
         messageBodySpan.appendChild(br);
-        messageBodySpan.appendChild(jobInfo2);
-        messageBodySpan.addEventListener('click', function() {
+        messageBodySpan.appendChild(jobInfo);
+        messageBodySpan.addEventListener('click', function(){
             const newWindow = window.open("about:blank");
             newWindow.location.href = job.url;
         });
@@ -197,7 +263,7 @@ class ChatContainer extends Component {
                 <div className={cx("type-message")}>
                     <i className="fa fa-plus fa-lg"></i>
                     <div className={cx("input-box")}>
-                        <input type="text" className="input-message" id="input-message" onKeyPress={inputMessage}/>
+                        <input type="text" className="input-message" id="input-message" onKeyUp={inputMessage} />
                         <i className="fa fa-smile-o fa-lg"></i>
                         <span className={cx("record-message")}>
                             <i className="fa fa-microphone fa-lg"></i>

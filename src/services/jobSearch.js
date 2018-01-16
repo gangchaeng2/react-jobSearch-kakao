@@ -1,9 +1,9 @@
 import axios from 'axios';
 import fastXmlParser from 'fast-xml-parser';
 
-export function getJobListBySaramin(query) {
+export function getJobListBySaramin(query, page) {
     query = encodeURIComponent(query);
-    return axios.get(`https://cors-anywhere.herokuapp.com/http://api.saramin.co.kr/job-search?keywords=${query}`);
+    return axios.get(`https://cryptic-headland-94862.herokuapp.com/http://api.saramin.co.kr/job-search?keywords=${query}&count=5&start=${page}`);
 }
 
 export function getJobListByIncuruit(query) {
@@ -11,11 +11,11 @@ export function getJobListByIncuruit(query) {
     return axios.get(`https://cors-anywhere.herokuapp.com/http://naeil.incruit.com/RSS?q=${query}&lo=&operTy=ANDOper`);
 }
 
-export function getJobList(query, site) {
+export function getJobList(query, site, page) {
     let jobList = [];
     switch(site) {
         case '사람인':
-            jobList = getJobListBySaramin(query)
+            jobList = getJobListBySaramin(query, page)
                       .then(function(res){
                           const jobJson = fastXmlParser.parse(res.data);
                           if(jobJson['job-search'].jobs.job.length > 0) {

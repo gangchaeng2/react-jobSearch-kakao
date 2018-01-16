@@ -8,7 +8,7 @@ import styles from './Search.scss';
 
 const cx = classNames.bind(styles);
 
-const Search = ({ friendList }) => {
+const Search = ({ friendList, handleChange }) => {
     const renderFriends = (friendList) => {
         return friendList.map((friend, i) => (  
             <Friend 
@@ -24,7 +24,7 @@ const Search = ({ friendList }) => {
         <div className="friends">
             <div className={cx('search-bar')}>
                 <i className="fa fa-search"></i>
-                <input type="text" placeholder="Find friends, chats, Plus Friends" />
+                <input type="text" placeholder="Find friends, chats, Plus Friends" onChange={handleChange}/>
             </div>
 
             <div className={cx('section')}>
