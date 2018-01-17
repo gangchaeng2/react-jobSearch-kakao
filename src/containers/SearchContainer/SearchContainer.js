@@ -9,11 +9,16 @@ class SearchContainer extends Component {
         super(props);
 
         this.state = {
-            friendList: [
-                {name: "사람인", introduce: "안녕하세요 사람인 입니다~", img: saramin},
-                {name: "인cruit", introduce: "안녕하세요 인cruit 입니다~", img: incruit}
-            ]
+            friendList: this.initializeState
         };
+    }
+    
+    get initializeState() {
+        return [
+            {name: "사람인", introduce: "안녕하세요 사람인 입니다~", img: saramin},
+            {name: "인cruit", introduce: "안녕하세요 인cruit 입니다~", img: incruit},
+            {name: "잡코리아", introduce: "안녕하세요 잡코리아 입니다~", img: saramin}
+        ];
     }
 
     // 검색
@@ -35,10 +40,7 @@ class SearchContainer extends Component {
             }
         } else { 
             this.setState({
-                friendList: [
-                    {name: "사람인", introduce: "안녕하세요 사람인 입니다~", img: saramin},
-                    {name: "인cruit", introduce: "안녕하세요 인cruit 입니다~", img: incruit}
-                ]
+                friendList: this.initializeState
             });
         }
     }

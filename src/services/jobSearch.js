@@ -40,7 +40,7 @@ export function getJobList(query, site, page) {
                           return null;
                       });
             break;
-        case '인curuit':
+        case '인cruit':
             jobList = getJobListByIncuruit(query)
                       .then(function(res) {
                           const jobJson = fastXmlParser.parse(res.data);
@@ -79,7 +79,6 @@ export function getJobList(query, site, page) {
 }
 
 export function ConvertSystemSourcetoHtml(str) {
-    console.log(str);
     if(str !== undefined) {
         str = str.replace(/&lt;/g,"<");
         str = str.replace(/&gt;/g,">");

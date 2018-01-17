@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
 
+import history from '../../utils/history';
 // import $ from 'jquery';
 
 import * as service from '../../services/jobSearch';
@@ -21,7 +22,8 @@ class ChatContainer extends Component {
         }
     }
 
-    componentDidMount() {
+    componentWillMount() {
+        console.log(history.location);
         document.body.className = 'chatting';
     }
 
@@ -30,9 +32,7 @@ class ChatContainer extends Component {
             jobList.forEach((job, i) => {
                 this.messageToMe(job);
             });
-            if( this.state.page === 1) {
-                this.moreView();
-             }
+            this.moreView();
             // $(".to-me:last-child").after(`<div class="to-me"><img class="avartar" src="/static/media/saramin.765c2345.png"><div class="message-center"><h3 class="user-name">사람인</h3><span class="message-body"><span class="more-view">더보기</span></div></div>`);
         } else {
             this.messageToMe(null);
@@ -55,7 +55,6 @@ class ChatContainer extends Component {
             const jobList = await service.getJobList(query, site, this.state.page);
             this.answerMessage(jobList);
          }
-
     }
 
     messageFromMe = (query) => {
@@ -82,6 +81,11 @@ class ChatContainer extends Component {
     }
 
     moreJobList = async() => {
+        // 삭제할 element 찾기
+        const field = document.getElementById('more');
+        // #field 에서 삭제할 element 제거하기
+        document.getElementById('detail-chat').removeChild(field);
+
         this.setState({
             page: this.state.page + 1
         });
@@ -95,6 +99,7 @@ class ChatContainer extends Component {
         const mainDiv = document.getElementById('detail-chat');
         const toMeDiv = document.createElement('div');
         toMeDiv.className = "to-me";
+        toMeDiv.id = "more";
         toMeDiv.addEventListener('click', this.moreJobList);
 
         let profileImg = document.createElement("img");
